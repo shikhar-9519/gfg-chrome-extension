@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "GFG POTD Solutions",
-  "version": "1.0",
+  "name": "DSA Video Solutions",
+  "version": "1.1",
   "description": "Watch YouTube video solutions for GeeksForGeeks Problem of the Day",
   "permissions": [
     "activeTab",
