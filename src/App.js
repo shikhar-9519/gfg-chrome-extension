@@ -133,7 +133,6 @@ const App = () => {
                 height="200"
                 src={`https://www.youtube.com/embed/${videoData.selectedVideo.videoId}`}
                 frameBorder="0"
-                allow="fullscreen"
                 allowFullScreen
                 title="Solution Video"
                 className="rounded"

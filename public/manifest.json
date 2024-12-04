@@ -5,7 +5,6 @@
   "description": "Watch YouTube video solutions for GeeksForGeeks Problem of the Day",
   "permissions": [
     "activeTab",
-    "scripting",
     "runtime",
     "tabs",
     "action"
@@ -28,7 +27,8 @@
   "content_scripts": [
     {
       "matches": ["https://www.geeksforgeeks.org/problems/*"],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "run_at": "document_end"
     }
   ]
 }
