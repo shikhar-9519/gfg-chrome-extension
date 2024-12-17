@@ -60,48 +60,83 @@ const App = () => {
   }, []);
 
   const fetchVideos = async (problemTitle) => {
-    try {
-      const API_KEY = process.env.REACT_APP_RAPIDAPI_KEY;
-      const API_URL = 'https://youtube138.p.rapidapi.com/search';
+    const API_KEYS = ['*****', '*****'];
 
-      const response = await fetch(`${API_URL}?q=${encodeURIComponent(problemTitle+" 5 minutes code channel")}&type=video&regionCode=IN`, {
-        method: 'GET',
-        headers: {
-          'X-RapidAPI-Key': API_KEY,
-          'X-RapidAPI-Host': 'youtube138.p.rapidapi.com',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch video data');
-      }
-
-      const data = await response.json();
-      const formattedData = {
-        selectedVideo: {
-          videoId: data.contents[0]?.video?.videoId,
-          channelUrl: data.contents[0]?.video?.author.canonicalBaseUrl,
-        },
-        relatedVideos: data.contents
-          .filter((item) => item.video)
-          .map((item) => ({
-            id: item.video.videoId,
-            title: item.video.title,
-            thumbnail: item.video.thumbnails[0].url,
-            channelTitle: item.video.channelName,
-            channelUrl: item.video.author.canonicalBaseUrl,
-            lengthSeconds: item.video.lengthSeconds,
+    let currentKeyIndex = 0;
+    let success = false;
+    let formattedData = null;
+    let errorMessage = null;
+  
+    const API_URL = "https://www.googleapis.com/youtube/v3/search";
+  
+    while (!success && currentKeyIndex < API_KEYS.length) {
+      try {
+        const response = await fetch(
+          `${API_URL}?part=snippet&q=${encodeURIComponent(
+            problemTitle + " 5 minutes code channel"
+          )}&type=video&maxResults=10&regionCode=IN&key=${API_KEYS[currentKeyIndex]}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+  
+        console.log('Full Response:', response);
+  
+        if (!response.ok) {
+          const errorBody = await response.text();
+  
+          // Check for quota-exceeded error
+          if (response.status === 403) {
+            currentKeyIndex++;
+            continue; // Move to the next API key
+          } else {
+            throw new Error(`HTTP Error: ${response.status} - ${errorBody}`);
+          }
+        }
+  
+        const data = await response.json();
+  
+        formattedData = {
+          selectedVideo: {
+            videoId: data.items[0]?.id?.videoId,
+            channelUrl: `channel/${data.items[0]?.snippet?.channelId}`,
+          },
+          relatedVideos: data.items.map((item) => ({
+            id: item.id.videoId,
+            title: item.snippet.title,
+            thumbnail: item.snippet.thumbnails?.high?.url,
+            channelTitle: item.snippet.channelTitle,
+            channelUrl: `channel/${item.snippet.channelId}`,
+            description: item.snippet.description,
+            publishTime: item.snippet.publishTime,
           })),
-      };
-
+        };
+  
+        success = true; // Successfully fetched data
+      } catch (err) {
+        console.error(
+          `Error with API key ${API_KEYS[currentKeyIndex]}:`,
+          err.message,
+          err
+        );
+        errorMessage = err.message;
+        currentKeyIndex++;
+      }
+    }
+  
+    if (success) {
       setVideoData(formattedData);
       setLoading(false);
-    } catch (err) {
-      console.error('Error fetching videos:', err);
-      setError('Failed to fetch videos');
+    } else {
+      console.error("All API keys exhausted. Failed to fetch videos.");
+      setError(errorMessage || "Failed to fetch videos");
       setLoading(false);
     }
   };
+  
 
   if (error) {
     return (
@@ -115,12 +150,19 @@ const App = () => {
     <div className="top-0 right-0 w-96 p-4 bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-200 transition-all min-h-screen">
       <div className="flex justify-between items-center mb-4">
       <h1 className="text-xl font-bold text-center">DSA Solutions</h1>
+        <div className='flex gap-4'>
         <button
           className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-full shadow-lg"
+          onClick={() => window.open('https://chromewebstore.google.com/detail/dsa-video-solutions/fplacgmeefidnohgepjcnabcaakfbknm/reviews/', '_blank')}
+        >
+          Rate us
+        </button>
+        <button
           onClick={() => window.open('https://www.linkedin.com/in/shikhar-gupta-98a15b197/', '_blank')}
         >
-          Know the Creator
+          <img src='linkedin_icon.png' alt='Linkedin icon' width={24} height={24}/>
         </button>
+        </div>
       </div>
       {loading ? (
         <div className="text-center">Loading...</div>

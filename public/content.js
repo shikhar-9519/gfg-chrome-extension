@@ -5,8 +5,9 @@ function injectButton() {
   const target = document.querySelector('[class^="problems_header_content__title"]');
   const hintBtn = document.querySelector('[class^="problems_hint_button"]');
   const problemFooter = document.querySelector('[class^="problems_footer"]');
+  const leetcodeTopBtns = document.querySelector('#ide-top-btns');
   
-  if (target && problemFooter) {
+  if (problemFooter || leetcodeTopBtns) {
       // Check if button already exists to prevent multiple injections
       if (document.querySelector('.tutorial-btn')) return;
 
@@ -35,13 +36,20 @@ function injectButton() {
               });
           }
       });
-
-      const firstChildDiv = problemFooter.querySelector('div:first-child');
-      if (firstChildDiv) {
-          firstChildDiv.style.display = 'flex';
-          firstChildDiv.style.alignItems = 'center';
-          firstChildDiv.appendChild(btn);
+      if(problemFooter) {
+        const firstChildDiv = problemFooter.querySelector('div:first-child');
+        if (firstChildDiv) {
+            firstChildDiv.style.display = 'flex';
+            firstChildDiv.style.alignItems = 'center';
+            firstChildDiv.appendChild(btn);
+        }
       }
+      else if(leetcodeTopBtns) {
+        leetcodeTopBtns.appendChild(btn);
+      }
+  }
+  else if(leetcodeTopBtns) {
+
   }
 }
 
